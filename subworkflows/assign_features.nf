@@ -3,12 +3,17 @@ process split_gtf_by_chroms {
     cpus 1
     memory "1 GB"
     input:
-        path("ref.gtf")
+        path(ref_gtf)
     output:
         path("*"), emit: chrom_gtf
     script:
     """
-    gawk '/^[^#]/ {print>\$1".gtf"}' ref.gtf
+    if [[ "${ref_gtf}" == *.gz ]]; then
+        cat_cmd="zcat" 
+    else
+        cat_cmd="cat"
+    fi
+    \${cat_cmd} ${ref_gtf} | awk '/^[^#]/ {print>\$1".gtf"}'
     """
 }
 

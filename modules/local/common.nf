@@ -38,6 +38,20 @@ process build_minimap_index {
     """
 }
 
+process make_fasta_index {
+    label "wf_common"
+    memory "2 GB"
+    cpus 1
+    input:
+        path "fasta.fa"
+    output:
+        path "fasta.fa.fai"
+    script:
+    """
+    samtools faidx fasta.fa
+    """
+}
+
 process call_paftools {
     label "singlecell"
     memory "2 GB"

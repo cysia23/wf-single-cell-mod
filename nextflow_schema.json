@@ -57,7 +57,7 @@
                     "format": "directory-path",
                     "title": "10x reference genome directory",
                     "description": "A local path to the 10x reference directory.",
-                    "help_text": "The workflow requires a 10x reference directory containing sequence and annotation data. The folder should contain these files: `genes/genes.gtf`, `fasta/genome.fa`, and `fasta/genome.fa.fai` as per the 10x reference folder format. 10x reference folders can be downloaded from https://www.10xgenomics.com/support/software/cell-ranger/downloads. Alternatively, the workflow can download a limited set of prebuilt 10x references using the `epi2me_resource_bundle` parameter"
+                    "help_text": "The workflow requires a 10x reference directory containing sequence and annotation data. The folder should contain either uncompressed or gzipped files: genes/genes.gtf or genes/genes.gtf.gz, and fasta/genome.fa or fasta/genome.fa.gz, as per the 10x reference folder format. 10x reference folders can be downloaded from https://www.10xgenomics.com/support/software/cell-ranger/downloads. Alternatively, the workflow can download a limited set of prebuilt 10x references using the `epi2me_resource_bundle` parameter"
                 },
                 "ctat_resources": {
                     "type": "string",

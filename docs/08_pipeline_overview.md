@@ -95,12 +95,11 @@ The reference data can be supplied one of two ways:
 Either use a 10x reference bundle (https://www.10xgenomics.com/support/software/cell-ranger/downloads#References) 
 or ensure that the reference directory contains the following files in the same folder structure
 ```
-├── refdata
-│   ├── fasta
-│   │   ├── genome.fa
-│   │   └── genome.fa.fai
-│   └── genes
-│       └── genes.gtf
+└── refdata
+    ├── fasta
+    │   └── genome.fa (or genome.fa.gz)
+    └── genes
+        └── genes.gtf (or genes.gtf.gz)
 ```
 2. `--epi2me_resource_bundle`: Select this option to use a prebuilt 10x resource directory.
 This will be downloaded automatically by the workflow and stored in `store-dir`;
