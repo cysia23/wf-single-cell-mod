@@ -71,9 +71,39 @@ def main(args):
             tags_str = f"{record.query_name}\t" + "\t".join(tag_values)
             tags_out.write(f"{tags_str}\n")
 
-    (
+    df_bc_counts = (
         pd.DataFrame(
             barcode_counter.items(), columns=['barcode', 'count'])
         .sort_values(by='count', ascending=False)
-        .to_csv(args.barcode_counts_out, sep='\t', index=False, header=True)
     )
+
+    if len(df_bc_counts) > 0:
+        # Bin barcode counts to 8um coordinates
+
+        # Extract coordinate part from barcode
+        df_bc_counts[["x_2um", "y_2um"]] = \
+            df_bc_counts['barcode'].str.extract(r'_(\d{5})_(\d{5})-').astype(int)
+
+        # Convert to 8um coordinates by integer division (bin size = 4)
+        df_bc_counts["x_8um"] = df_bc_counts["x_2um"] // 4
+        df_bc_counts["y_8um"] = df_bc_counts["y_2um"] // 4
+
+        df_bc_counts.drop(columns=["x_2um", "y_2um"], inplace=True)
+
+        # Group by 8um bins and sum counts
+        df_bc_counts = \
+            df_bc_counts.groupby(["x_8um", "y_8um"])["count"].sum().reset_index()
+
+        # Generate a new 8um bin barcode name eg s_008_um_01234_01234
+        df_bc_counts["barcode"] = df_bc_counts.apply(
+            lambda row: (
+                f's_008_um_{str(row["x_8um"]).zfill(5)}_{str(row["y_8um"]).zfill(5)}'),
+            axis=1
+        )
+
+        df_bc_counts.drop(columns=["x_8um", "y_8um"], inplace=True)
+        df_bc_counts = df_bc_counts[["barcode", "count"]]
+
+    # Output to TSV
+    df_bc_counts.to_csv(
+        args.barcode_counts_out, header=True, sep="\t", index=False)
