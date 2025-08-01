@@ -31,6 +31,7 @@ docker-run:
       matrix:
         - MATRIX_NAME: [
           "standard",
+          "compressed_reference",
           "cloud_10x_resource",
           "fixed_cell_count",
           "no_fl_filtering",
@@ -53,6 +54,10 @@ docker-run:
       - if: $MATRIX_NAME == 'standard'
         variables:
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --genes_of_interest  ${CI_PROJECT_NAME}/data/test_data/genes_of_interest.csv --fastq ${CI_PROJECT_NAME}/data/test_data/fastq/ --fastq_chunk 2500 --single_cell_sample_sheet ${CI_PROJECT_NAME}/data/test_data/samples.test.csv --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
+      - if: $MATRIX_NAME == 'compressed_reference'
+        variables:
+          NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --kit 3prime:v4 --expected_cells 10 --fastq ${CI_PROJECT_NAME}/data/test_data/fastq/3prime_v4 --fastq_chunk 2500 --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A_compressed --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"
           NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
       - if: $MATRIX_NAME == 'cloud_10x_resource'
         variables:
@@ -67,39 +72,39 @@ docker-run:
             --matrix_min_genes 1
             --matrix_min_cells 1
             --matrix_max_mito 100
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run with fixed cell count, i.e. no cell count estimation.
       - if: $MATRIX_NAME == 'fixed_cell_count'
         variables:
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --fastq ${CI_PROJECT_NAME}/data/test_data/fastq/ --estimate_cell_count=false --fastq_chunk 2500 --single_cell_sample_sheet ${CI_PROJECT_NAME}/data/test_data/samples.test.csv --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"  
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run without filtering of full-length reads.
       - if: $MATRIX_NAME == 'no_fl_filtering'
         variables:
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --fastq ${CI_PROJECT_NAME}/data/test_data/fastq/ --fastq_chunk 2500 --full_length_only=false --single_cell_sample_sheet ${CI_PROJECT_NAME}/data/test_data/samples.test.csv --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run integration test. Some basic checks of results is done.
       - if: $MATRIX_NAME == "integration-test"
         variables:
           NF_BEFORE_SCRIPT: "mkdir -p ${CI_PROJECT_NAME}/data/ && wget -O ${CI_PROJECT_NAME}/data/ci_data.tar.gz https://ont-exd-int-s3-euwst1-epi2me-labs.s3.amazonaws.com/wf-single-cell/ci_data.tar.gz && tar -xzvf ${CI_PROJECT_NAME}/data/ci_data.tar.gz -C ${CI_PROJECT_NAME}/data/"
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --fastq ${CI_PROJECT_NAME}/data/ci_data/sample1.fq --fastq_chunk 2500 --ref_genome_dir ${CI_PROJECT_NAME}/data/ci_data/10x_ref_chr21_22 --matrix_min_genes 1 --matrix_min_cells 1 --expected_cells 10 --kit 3prime:v3"
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run with BAM input.
       - if: $MATRIX_NAME == "bam-input"
         variables:
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --bam ${CI_PROJECT_NAME}/data/test_data/bam/ --fastq_chunk 2500 --single_cell_sample_sheet ${CI_PROJECT_NAME}/data/test_data/samples.test.csv --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run with visium data (non-HD)
       - if: $MATRIX_NAME == "visium"
         variables:
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=4 --fastq ${CI_PROJECT_NAME}/data/test_data/visium_fastq --fastq_chunk 2500 --kit visium:v1 --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCm39-2024-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100"
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       # Run with SNV calling.
       - if: $MATRIX_NAME == "SNV" 
         variables:
           NF_BEFORE_SCRIPT: "mkdir -p ${CI_PROJECT_NAME}/data/ && wget -O ${CI_PROJECT_NAME}/data/test_data.tar.gz  https://ont-exd-int-s3-euwst1-epi2me-labs.s3.amazonaws.com/wf-single-cell/v2.5.0_test_data.tar.gz && tar -xzvf ${CI_PROJECT_NAME}/data/test_data.tar.gz -C ${CI_PROJECT_NAME}/data/"
           NF_WORKFLOW_OPTS: "-executor.\\$$local.memory 64GB --threads 4 --wf.merge_threads=2 --fastq ${CI_PROJECT_NAME}/data/test_data/variant_data/colo829_10_cells.fq.gz --call_variants=true --fastq_chunk 2500 --kit 3prime:v4 --ref_genome_dir ${CI_PROJECT_NAME}/data/test_data/refdata-gex-GRCh38-2020-A --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100 --expected_cells 10 --estimate_cell_count=false"
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       - if: $MATRIX_NAME == "fusion"
       # Fusion calling with local resources.
         variables:
@@ -126,7 +131,7 @@ docker-run:
               --ctat_resources ${CI_PROJECT_NAME}/data/${CTATLIB}
               --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100
               --expected_cells 10
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       - if: $MATRIX_NAME == "fusion_cloud_resource"
       # Fusion calling with EPI2ME cloud resources.
         variables:
@@ -147,7 +152,7 @@ docker-run:
               --matrix_min_cells 1
               --matrix_max_mito 100
               --expected_cells 10
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       - if: $MATRIX_NAME == "fusion_multisample_with_negative"
       # Fusion calling including fastq sample with no snv calls.
         variables:
@@ -174,7 +179,7 @@ docker-run:
               --ctat_resources ${CI_PROJECT_NAME}/data/${CTATLIB}
               --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100
               --expected_cells 10
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
       - if: $MATRIX_NAME == "visium_hd"
       # Visium HD workflow. Uses pre-deduplicated BAM from spaceranger.
         variables:
@@ -193,7 +198,7 @@ docker-run:
             --ref_genome_dir ${CI_PROJECT_NAME}/data/visium_hd_wai5VuBb/refdata-gex-GRCm39-2024-A_chr10
             --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100
             --genes_of_interest ${CI_PROJECT_NAME}/data/visium_hd_wai5VuBb/goi.tsv
-          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+          NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
 
 aws-run:
     stage: test
@@ -238,7 +243,7 @@ aws-run:
                 --ctat_resources ${CI_PROJECT_NAME}/data/${CTATLIB}
                 --matrix_min_genes 1 --matrix_min_cells 1 --matrix_max_mito 100
                 --expected_cells 10
-            NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+            NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
         - if: $MATRIX_NAME == "fusion-aws-cloud-resource"
         # Fusion calling with EPI2ME cloud resources in AWS.
           variables:
@@ -259,7 +264,7 @@ aws-run:
                 --matrix_min_cells 1
                 --matrix_max_mito 100
                 --expected_cells 10
-            NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data"
+            NF_IGNORE_PROCESSES: "get_ctat_data,get_10x_data,uncompress_ref"
 
 
 
@@ -268,6 +273,7 @@ macos-run:
   tags:
     - macos
     - x86
+
 
 integration_test:
   extends: .setup-alpine-nextflow

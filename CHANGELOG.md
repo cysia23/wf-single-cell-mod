@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Support for gzip-compressed reference input files.
+
 ### Fixed
 - Visium HD summary statistics in the workflow report are now generated from the 8 µm 
   binned data instead of from the 2 µm unbinned data.

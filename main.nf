@@ -14,8 +14,26 @@ include { correct_10x_barcodes } from './subworkflows/barcode_correction'
 include { assign_features_with_stringtie } from './subworkflows/assign_features'
 include { spaceranger} from './subworkflows/process_spaceranger'
 include { getParams } from './lib/common'
+include { make_fasta_index } from './modules/local/common'
 
 OPTIONAL_FILE = file("$projectDir/data/OPTIONAL_FILE")
+
+
+process uncompress_ref {
+    label "wf_common"
+    cpus 1
+    memory "3 GB"
+    input:
+        path "ref.fa.gz"
+    output:
+        path "ref.fa", emit: fasta
+        path "ref.fa.fai", emit: index
+    script:
+    """
+    zcat ref.fa.gz > ref.fa 
+    samtools faidx ref.fa
+    """
+}
 
 process getVersions {
     label "singlecell"
@@ -421,9 +439,31 @@ workflow {
     Pinguscript.ping_start(nextflow, workflow, params)
 
     if (params.ref_genome_dir) {
-        ref_genome_fasta = file("${params.ref_genome_dir}/fasta/genome.fa", checkIfExists: true)
-        ref_genome_idx = file("${params.ref_genome_dir}/fasta/genome.fa.fai", checkIfExists: true)
-        ref_genes_gtf = file("${params.ref_genome_dir}/genes/genes.gtf", checkIfExists: true)
+        def fasta_gz = file("${params.ref_genome_dir}/fasta/genome.fa.gz", checkIfExists: false)
+        def fasta = file("${params.ref_genome_dir}/fasta/genome.fa", checkIfExists: false)
+
+        if (fasta_gz.exists()) {
+            uncompress_ref(fasta_gz)
+            ref_genome_fasta = uncompress_ref.out.fasta
+            ref_genome_idx = uncompress_ref.out.index
+
+        } else if (fasta.exists()) {
+            ref_genome_fasta = fasta
+            ref_genome_idx = make_fasta_index(fasta)
+        } else {
+            error "Reference genome FASTA not found (.fa or .fa.gz)"
+        }
+
+        def gtf_gz = file("${params.ref_genome_dir}/genes/genes.gtf.gz", checkIfExists: false)
+        def gtf = file("${params.ref_genome_dir}/genes/genes.gtf", checkIfExists: false)
+
+        if (gtf_gz.exists()) {
+            ref_genes_gtf = gtf_gz
+        } else if (gtf.exists()) {
+            ref_genes_gtf = gtf
+        } else {
+            error "GTF file not found (.gtf or .gtf.gz)"
+        }
     }
     else if (params.epi2me_resource_bundle) {
         url = params.resource_bundles.get(params.epi2me_resource_bundle)['10x']
