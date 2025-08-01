@@ -361,15 +361,16 @@ def saturation_plots(seq_data, gene_data, type_label):
 # once https://nanoporetech.atlassian.net/browse/CW-5808 is released,
 # We can add sortable=False and use_header=False to the DataTables in this section
 def experiment_summary_section(
-        report, wf_df, aln_df, cell_counts_df, visium, type_label):
+        report, wf_stats_df, aln_df, cell_counts_df, visium, type_label):
     """Three columns experiment summary section."""
     div_style = "padding: 20px;background-color: rgb(245, 245, 245)"
     with report.add_section('Summary', 'Summary'):
         tabs = Tabs()
         with tabs.add_dropdown_menu('sample', change_header=True):
-            for sample, sample_df in wf_df.groupby('sample_id'):
+            for sample, sample_df in wf_stats_df.groupby('sample_id'):
                 with tabs.add_dropdown_tab(sample):
                     with Grid(columns=3):
+
                         # Column 1 - Experiment summary
                         with div(style=div_style):
                             h4("Experiment summary")
@@ -395,19 +396,28 @@ def experiment_summary_section(
                             DataTable.from_pandas(
                                 df_col1, use_index=True, paging=False,
                                 searchable=False, sortable=False, use_headers=False)
+
                         # column 2 - rank plot
                         with div(style=div_style):  # barcode rankplot
                             h4('Barcode rank plot')
                             df_col2 = cell_counts_df[
                                 cell_counts_df['sample'] == sample]
                             n_cells = int(sample_df.at['cells', 'count'])
+
                             # Barcodes are ordered by ascending read count
-                            # Get the rank of each barcode in descending order
+                            # Assign the rank of each barcode in descending order
                             df_col2[f'{type_label.capitalize()} barcode rank'] \
                                 = np.arange(0, len(df_col2))[::-1]
                             df_col2.rename(
                                 {'count': 'Read count'}, axis=1, inplace=True)
 
+                            # Subsample barcode counts if there are too many.
+                            # Do this after assigning rank so rank is preserved.
+                            max_counts = 10000
+                            if len(df_col2) > max_counts:
+                                indices = np.linspace(
+                                    0, len(df_col2) - 1, max_counts, dtype=int)
+                                df_col2 = df_col2.iloc[indices]
                             rank_plt = ezcharts.lineplot(
                                 data=df_col2,
                                 x=f'{type_label.capitalize()} barcode rank',
@@ -699,11 +709,6 @@ def main(args):
     df_counts = pd.read_csv(
         args.knee_plot_counts, sep='\t',
         usecols=['barcode', 'count', 'sample'], index_col='barcode')
-
-    # Subsample barcode counts if there are too many barcodes,
-    max_counts = 10000
-    if len(df_counts) > max_counts:
-        df_counts = df_counts[::len(df_counts) // max_counts]
 
     experiment_summary_section(report, wf_df, df_aln, df_counts, visium, type_label)
 

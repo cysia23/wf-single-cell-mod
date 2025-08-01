@@ -270,7 +270,6 @@ macos-run:
     - x86
 
 integration_test:
-  <<: *artifact_common
   extends: .setup-alpine-nextflow
   dependencies: ["docker-run: [integration-test]"]
   stage: post-test

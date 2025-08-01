@@ -181,7 +181,7 @@ def main(args):
     aln_stats.to_csv(args.bam_stats_out, sep='\t', index=False)
 
     # If we are given adapter_stats, then this is visium_hd data
-    logger.info("Gtetting genes of interest expression data.")
+    logger.info("Getting genes of interest expression data.")
     goi_df = get_genes_of_interest_expression(
         args.raw_gene_expression, args.genes_of_interest)
     goi_df.to_csv(

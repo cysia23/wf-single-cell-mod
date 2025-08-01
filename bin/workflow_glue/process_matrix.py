@@ -117,17 +117,12 @@ def main(args):
     except UnicodeDecodeError:
         matrix = ExpressionMatrix.aggregate_hdfs(args.input, dtype=float)
 
+    # Sequencing saturation can be calculated before binning,
+    # as it reflects a property of the bulk data independent of individual cells.
     if args.seq_saturation:
         sat_results = matrix.saturation.saturation_results
         sat_results.assign(sample=args.sample).to_csv(
             args.seq_saturation, sep='\t', index=False)
-    if args.gene_saturation:
-        df_genes_per_cell = matrix.saturation_statistics
-        (
-            df_genes_per_cell
-            .assign(sample=args.sample)
-            .to_csv(args.gene_saturation, sep='\t', index=False)
-        )
 
     logger.info("Removing unknown features.")
     if len(matrix.cells) == 0:
@@ -135,15 +130,6 @@ def main(args):
             This may indicate an issue with data quality or volume.
             Incorrectly specified 10x kits/versions and reference data can also lead to
             to removal of all data at this point.""")
-
-    # Generate statistics from the assembled matrix before any filtering.
-    stats = {}
-    stats['median_umis_per_cell'] = matrix.median_counts
-    stats['median_genes_per_cell'] = matrix.median_features_per_cell
-
-    with open(args.stats, 'w') as fh:
-        for k, v in stats.items():
-            fh.write(f'{k}\t{v}\n')
 
     # Begin filtering
     matrix.remove_unknown()
@@ -163,6 +149,24 @@ def main(args):
         matrix.bin_cells_by_coordinates(bin_size=4, inplace=True)
     else:
         matrix_outpath = args.raw
+
+    # Calculate per-cell/spot summaries after any binning of the data.
+    if args.gene_saturation:
+        df_genes_per_cell = matrix.saturation_statistics
+        (
+            df_genes_per_cell
+            .assign(sample=args.sample)
+            .to_csv(args.gene_saturation, sep='\t', index=False)
+        )
+
+    stats = {
+        'median_umis_per_cell': matrix.median_counts,
+        'median_genes_per_cell': matrix.median_features_per_cell
+    }
+
+    with open(args.stats, 'w') as fh:
+        for k, v in stats.items():
+            fh.write(f'{k}\t{v}\n')
 
     if args.text:
         matrix.to_tsv(matrix_outpath, args.feature)
