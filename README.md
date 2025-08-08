@@ -490,6 +490,8 @@ into a single file per sampe using `merge_bam`. The new bam will contain the fol
   - UB: corrected UMI sequence
   - UR: uncorrected UMI sequence
   - UY: Phred quality scores of the uncorrected UMI sequence
+  - GN: Assigned gene ID
+  - TR: Assigned transcript ID
 
 
 ### 10. Calculate library saturation
