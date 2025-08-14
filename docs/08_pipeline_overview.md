@@ -30,8 +30,8 @@ The table below details the adapter sequences for each of the 10x Genomics kits,
 | Kit      | adapter1                | adapter2                     | 10x user guide                                                                                                                              |
 |----------|-------------------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
 | 3&#8242; | CTACACGACGCTCTTCCGATCT  | ATGTACTCTGCGTTGATACCACTGCTT  | [3' kit](https://cdn.10xgenomics.com/image/upload/v1660261285/support-documents/CG000204_ChromiumNextGEMSingleCell3_v3.1_Rev_D.pdf)         |
-| multiome | CTACACGACGCTCTTCCGATCT  | ATGTACTCTGCGTTGATACCACTGCTT  | [5'  kit](https://cdn.10xgenomics.com/image/upload/v1666737555/support-documents/CG000331_ChromiumNextGEMSingleCell5-v2_UserGuide_RevE.pdf) |
-| 5&#8242; | CTACACGACGCTCTTCCGATCT  | GTACTCTGCGTTGATACCACTGCTT    | [Multiome kit](https://teichlab.github.io/scg_lib_structs/data/CG000338_ChromiumNextGEM_Multiome_ATAC_GEX_User_Guide_RevB.pdf)              |
+| 5&#8242; | CTACACGACGCTCTTCCGATCT  | ATGTACTCTGCGTTGATACCACTGCTT  | [5'  kit](https://cdn.10xgenomics.com/image/upload/v1666737555/support-documents/CG000331_ChromiumNextGEMSingleCell5-v2_UserGuide_RevE.pdf) |
+| Multiome | CTACACGACGCTCTTCCGATCT  | GTACTCTGCGTTGATACCACTGCTT    | [Multiome kit](https://cdn.10xgenomics.com/image/upload/v1728078404/support-documents/CG000338_ChromiumNextGEM_Multiome_ATAC_GEX_User_Guide_RevG.pdf.pdf)              |
 | Visium   | CTACACGACGCTCTTCCGATCT  | ATGTACTCTGCGTTGATACCACTGCTT  | [Visium kit](https://cdn.10xgenomics.com/image/upload/v1695417753/support-documents/CG000239_VisiumSpatialGeneExpression_UserGuide_RevG.pdf) |
 
 Concatenated reads are identified by adapter configuration and are split into individual subreads and 

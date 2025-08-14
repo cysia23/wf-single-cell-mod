@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Fixed
 - Missing BAM tag information the README.
+- Incorrect kit name in the adapter table of the pipeline overview document.
 
 ## [v3.3.2]
 ### Added
@@ -36,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated to align software with wf-template v5.6.2. This change does not have
   any functional impact on the workflow, but it ensures that the workflow
   remains compatible with the latest standards and practices.
+- Stringtie updated to v2.2.3, which fixes stalling at transcriptome assembly step.
 
 ### Fixed
 - Reads with unexpected UMI lengths were not removed in a consistent manner.
