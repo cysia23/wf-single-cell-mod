@@ -87,6 +87,23 @@ process call_adapter_scan {
 }
 
 
+process summarize_and_publish_adapters {
+    label "singlecell"
+    publishDir "${params.out_dir}/${meta.alias}", mode: 'copy'
+    cpus 1
+    memory "1 GB"
+    input:
+        tuple val(meta), path("inputs/summary*.json")
+    output:
+        tuple val(meta), path("${meta.alias}.config_stats.json"), emit: config_stats
+    script:
+    """
+    workflow-glue summarise_adapters inputs "${meta.alias}.config_stats.json"
+    """
+}
+
+
+
 process merge_bams {
     // Combine all BAMs derived from the initial chunking into per sample files
     label "wf_common"
@@ -128,6 +145,9 @@ workflow preprocess {
             build_minimap_index.out.index,
             ref_genes_bed)
         
+        summarize_and_publish_adapters(
+           call_adapter_scan.out.adapter_summary.groupTuple())
+
         merged_bam = merge_bams(call_adapter_scan.out.bam_sort.groupTuple())
 
     emit:
