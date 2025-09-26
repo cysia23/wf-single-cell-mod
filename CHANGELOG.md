@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing BAM tag information the README.
 - Incorrect kit name in the adapter table of the pipeline overview document.
 - Adapter summary JSON, that was missing in v3.0.1, is again published to the user output directory.
+- Visium HD binned barcode coordinates are now in the same format as the 2 µm raw coordinates.
 
 ## [v3.3.2]
 ### Added

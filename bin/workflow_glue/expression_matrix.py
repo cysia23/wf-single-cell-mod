@@ -582,7 +582,8 @@ class ExpressionMatrix:
 
         return self._matrix
 
-    def bin_cells_by_coordinates(self, bin_size=4, inplace=False):
+    def bin_cells_by_coordinates(
+            self, bin_size=4, resolution_prefix='s_008um', inplace=False):
         """Aggregate expression data across spatial bins."""
         if not self.is_visium_hd:
             raise ValueError(
@@ -612,7 +613,9 @@ class ExpressionMatrix:
         # sort bin keys and assign column indices, this means the output
         # 'cell' list will always be a row major (in space)
         sorted_bins = sorted(bin_to_cells.keys())
-        new_cell_names = [f"bin_{bx}_{by}".encode() for (bx, by) in sorted_bins]
+        new_cell_names = [
+            f"{resolution_prefix}_{str(bx).zfill(5)}_{str(by).zfill(5)}".encode()
+            for (bx, by) in sorted_bins]
         bin_key_to_column = {bin_key: i for i, bin_key in enumerate(sorted_bins)}
 
         # construct new matrix as COO. This is the fastest way to

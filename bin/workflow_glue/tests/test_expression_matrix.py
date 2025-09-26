@@ -474,7 +474,7 @@ def test_bin_cells_by_coordinates_simple(matrix_mode):
     binned = em.bin_cells_by_coordinates(bin_size=2)
     assert binned.matrix.shape == (2, 1)  # 2 genes, 1 bin
     assert binned.sparse == matrix_mode, "Should preserve sparse mode"
-    np.testing.assert_array_equal(binned.cells, [b"bin_0_0"])
+    np.testing.assert_array_equal(binned.cells, [b"s_008um_00000_00000"])
     expected = matrix_data.sum(axis=1).reshape(2, 1)  # sum all cells
     if matrix_mode:
         binned._matrix = binned.matrix.toarray()
