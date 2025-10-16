@@ -13,10 +13,10 @@ In brief, the workflow does the following:
 
 This workflow supports the following 10x kits:
 + 3': v2/v3 and v4 (GEM-X)
-+ 5': v1/v2
++ 5': v1/v2 and v3 (GEM-X)
 + multiome (gene expression only): v1 
-+ visium spatial transcriptomics: v1
-
++ visium 3': v1 
++ visium HD 3': v1
 
 The [BLAZE](https://github.com/shimlab/BLAZE) preprint provided useful benchmarking of the original sockeye implementation. 
 This assisted in the selection of appropriate thresholds for cell cut-off and for defining the limits of the gene x cell matrix.
