@@ -197,11 +197,8 @@ workflow process_bams {
         // Aggregate expression matrices to create sparse MEX matrices (https://math.nist.gov/MatrixMarket/formats.html#MMformat)
         // and UMAP TSVs
         process_matrix(
-            create_matrix.out.gene.groupTuple(by: [0, 2])
-                .map {meta, _chroms, feature, hdfs -> [meta, feature, hdfs.flatten()]}
-            .mix(
-                create_matrix.out.transcript.groupTuple(by: [0, 2])
-                .map {meta, _chroms, feature, hdfs -> [meta, feature, hdfs.flatten()]})
+            create_matrix.out.summary.groupTuple()
+            .map {meta, chroms, tsvs -> [meta, tsvs]}, ['gene', 'transcript']
             )
 
         // TODO: merging the gffs and merging the fasta files is two independent
