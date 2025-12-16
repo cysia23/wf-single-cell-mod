@@ -15,8 +15,6 @@ process create_matrix {
     output:
         tuple val(meta), val(chr), path("summary.tsv"), emit: summary
         tuple val(meta), val(chr), path("sa_summary.tsv"), emit: sa_summary
-        tuple val(meta), val(chr), val("gene"), path("hdfs/*gene.hdf"), emit: gene
-        tuple val(meta), val(chr), val("transcript"), path("hdfs/*transcript.hdf"), emit: transcript
         tuple val(meta), val(chr), path("stats.json"), emit: stats
     script:
     def opt_umi_length = meta['umi_length'] == 'None' ? "" : "--umi_length ${meta['umi_length']}"
@@ -28,7 +26,6 @@ process create_matrix {
         ${chr} barcodes.tsv features.tsv \
         --tsv_out summary.tsv \
         --sa_tags_out sa_summary.tsv \
-        --hdf_out hdfs \
         --stats stats.json \
         ${opt_umi_length} \
         ${opt_umi_clustering}
@@ -41,10 +38,11 @@ process create_matrix {
 process process_matrix {
     label "singlecell"
     cpus  1
-    memory "32 GB"
+    memory "40 GB"
     publishDir "${params.out_dir}/${meta.alias}", mode: 'copy', pattern: "*{mito,umap,raw,processed}*"
     input:
-        tuple val(meta), val(feature), path('inputs/matrix*.hdf')
+        tuple val(meta), path('inputs/matrix*.tsv')
+        each feature
     output:
         tuple val(meta), val(feature), path("${meta.alias}.${feature}_raw_feature_bc_matrix"), emit: raw, optional: true
         tuple val(meta), val(feature), path("${meta.alias}.${feature}_raw_feature_bc_matrix_2um"), emit: matrix_2um , optional: true
@@ -62,11 +60,12 @@ process process_matrix {
     def opt_seq_sat = feature == 'gene' ?  "--seq_saturation seq_saturation.tsv --gene_saturation gene_saturation.tsv" : ""
     """
     export NUMBA_NUM_THREADS=${task.cpus}
-    workflow-glue process_matrix \
-        inputs/matrix*.hdf \
+    mkdir -p ${feature}_raw_feature_bc_matrix ${feature}_processed_feature_bc_matrix
+    process-matrix.py \
+        inputs/matrix*.tsv \
         --feature ${feature} \
-        --raw "${meta.alias}.${feature}_raw_feature_bc_matrix" \
-        --processed "${meta.alias}.${feature}_processed_feature_bc_matrix" \
+        --raw ${feature}_raw_feature_bc_matrix/ \
+        --processed ${feature}_processed_feature_bc_matrix/ \
         --per_cell_mito "${meta.alias}.${feature}_expression_mito_per_cell.tsv" \
         --per_cell_expr "${meta.alias}.${feature}_expression_mean_per_cell.tsv" \
         --umap_tsv "${meta.alias}.${feature}_expression_umap_REPEAT.tsv" \
