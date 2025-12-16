@@ -22,7 +22,7 @@ process stringtie {
     label "singlecell"
     cpus params.threads
     // Memory usage for this process is usually less than 3GB, but some cases it may go over this.
-    memory { 3.GB * task.attempt }
+    memory { 8.GB * task.attempt }
     maxRetries 3
     input:
         path 'ref_genome.fa'
