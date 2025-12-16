@@ -56,7 +56,7 @@ process call_adapter_scan {
         --output_read_tags "bc_extract.tsv" \
         --output_barcode_counts "high_quality_bc_counts.tsv" \
     | minimap2 -ax splice -uf --MD \
-        -t $mm2_threads -K 10M \
+        -t $mm2_threads -K 10M -G 300000 \
         --junc-bed ref_genes.bed  \
         --cap-kalloc 100m \
         genome_index.mmi - \
