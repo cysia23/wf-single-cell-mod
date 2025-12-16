@@ -82,13 +82,14 @@ workflow correct_10x_barcodes {
         //       in extracted_barcodes. It takes a long time per-chunk so should
         //       be left as parallel across chunks.
         assign_barcodes(
-            generate_whitelist.out.whitelist
+            generate_whitelist.out.hq_counts
             .cross(extracted_barcodes)
             .map {it ->
                 def meta = it[0][0]
                 def whitelist = it[0][1]
-                def barcodes = it[1][1]
-                [meta, whitelist, barcodes]})
+                counts = it[0][2]
+                barcodes = it[1][1]
+                [meta, whitelist, counts, barcodes]})
 
         merge_and_publish_tsv(
             assign_barcodes.out.summary
