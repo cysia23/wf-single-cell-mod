@@ -25,9 +25,7 @@ process generate_whitelist{
         flags = params.correction_method == 'custom' ? '--method abundance --read_count 1' : ('--method quantile --exp_cells ' + meta['expected_cells'])
     // It doesn't make sense to do cell count thresholding of the shortlist for visium data.
     // A visium barcode is a tissue coordinate not a cell.
-    def no_thresholding_opt = meta.kit.split(':')[0] == 'visium' ? '--no_cell_filter' : ""
-    def exp_cells_opt = meta.kit.split(':')[0] != 'visium' ? "--exp_cells ${meta['expected_cells']}" : ""
-    def method_opt = params.estimate_cell_count ? "--method quantile" : "--method fixed"
+
     """
     workflow-glue create_shortlist \
         barcodes "${meta.alias}.whitelist.tsv" shortlist_summary.tsv "${meta.alias}" \
